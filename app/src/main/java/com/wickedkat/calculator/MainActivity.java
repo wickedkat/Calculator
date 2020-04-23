@@ -1,5 +1,6 @@
 package com.wickedkat.calculator;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -22,6 +23,9 @@ public class MainActivity extends AppCompatActivity {
     private String pendingOperation = "=";
     private List<Button> numberButtons = new ArrayList<>();
     private List<Button> opButtons = new ArrayList<>();
+
+    private static final String STATE_PENDINGOPERATION = "Pending Operation";
+    private static final String STATE_OPERAND1 = "Operand1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +71,37 @@ public class MainActivity extends AppCompatActivity {
         Button buttonDivide = findViewById(R.id.buttonDivide);
         opButtons.add(buttonDivide);
 
+        Button buttonNeg = findViewById(R.id.buttonNeg);
+        Button buttonAC = findViewById(R.id.buttonAC);
+
+        View.OnClickListener negListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Button b = (Button) v;
+                if(newNumber.getText().toString().equals("")){
+                    newNumber.append("-");
+
+                }
+
+            }
+        };
+
+        buttonNeg.setOnClickListener(negListener);
+
+        View.OnClickListener acListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Button b = (Button) v;
+                result.setText("");
+                newNumber.setText("");
+                displayOperation.setText("");
+                operand1 = null;
+            }
+        };
+
+        buttonAC.setOnClickListener(acListener);
+
+
         View.OnClickListener numListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,8 +111,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
         };
-        for (Button button:numberButtons
-             ) {button.setOnClickListener(numListener);
+        for (Button button : numberButtons
+        ) {
+            button.setOnClickListener(numListener);
 
         }
         View.OnClickListener operationListener = new View.OnClickListener() {
@@ -86,57 +122,74 @@ public class MainActivity extends AppCompatActivity {
                 Button b = (Button) v;
                 String oper = b.getText().toString();
                 String value = newNumber.getText().toString();
-                try{
+                try {
                     Double doubleValue = Double.valueOf(value);
                     performOperation(doubleValue, oper);
-                }
-                catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     newNumber.setText("");
-                };
+                }
+                ;
                 pendingOperation = oper;
                 displayOperation.setText(pendingOperation);
             }
         };
 
-        for (Button button:opButtons
-             ) {button.setOnClickListener(operationListener);
+        for (Button button : opButtons
+        ) {
+            button.setOnClickListener(operationListener);
 
         }
-
-
-
     }
-    @SuppressLint("SetTextI18n")
-    private void performOperation(Double value, String operation){
-        if(operand1 ==null){
-            operand1 = value;
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString(STATE_PENDINGOPERATION, pendingOperation);
+        if (operand1 != null){
+            outState.putDouble(STATE_OPERAND1, operand1);
         }
-        else{
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        pendingOperation = savedInstanceState.getString(STATE_PENDINGOPERATION);
+        operand1 = savedInstanceState.getDouble(STATE_OPERAND1);
+        displayOperation.setText(pendingOperation);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void performOperation(Double value, String operation) {
+        if (operand1 == null) {
+            operand1 = value;
+        } else {
             operand2 = value;
             if (pendingOperation.equals("=")) {
 
                 pendingOperation = operation;
             }
-            switch (pendingOperation){
-                case"=":
+            switch (pendingOperation) {
+                case "=":
                     operand1 = operand2;
                     break;
-                case"/":
-                    if(operand2==0){
-                        operand1 =0.0;
-                    }
-                    else{
+                case "/":
+                    if (operand2 == 0) {
+                        operand1 = 0.0;
+                    } else {
                         operand1 /= operand2;
                     }
                     break;
                 case "*":
+                    if (operand2 == 0) {
+                        operand1 = 0.0;            /* fixing "-0.0" problem when multiplying neg number */
+                    }
                     operand1 *= operand2;
                     break;
                 case "-":
-                    operand1 -=operand2;
+                    operand1 -= operand2;
                     break;
                 case "+":
-                    operand1 +=operand2;
+                    operand1 += operand2;
                     break;
             }
         }
