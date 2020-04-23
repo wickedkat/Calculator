@@ -2,6 +2,7 @@ package com.wickedkat.calculator;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -99,7 +100,41 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    @SuppressLint("SetTextI18n")
     private void performOperation(String value, String operation){
-        displayOperation.setText(operation);
+        if(operand1 ==null){
+            operand1 = Double.valueOf(value);
+        }
+        else{
+            operand2 = Double.valueOf(value);
+            if (pendingOperation.equals("=")) {
+
+                pendingOperation = operation;
+            }
+            switch (pendingOperation){
+                case"=":
+                    operand1 = operand2;
+                    break;
+                case"/":
+                    if(operand2==0){
+                        operand1 = 0.0;
+                    }
+                    else{
+                        operand1 /= operand2;
+                    }
+                    break;
+                case "*":
+                    operand1 *= operand2;
+                    break;
+                case "-":
+                    operand1 -=operand2;
+                    break;
+                case "+":
+                    operand1 +=operand2;
+                    break;
+            }
+        }
+        result.setText(operand1.toString());
+        newNumber.setText("");
     }
 }
