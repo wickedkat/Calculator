@@ -86,9 +86,13 @@ public class MainActivity extends AppCompatActivity {
                 Button b = (Button) v;
                 String oper = b.getText().toString();
                 String value = newNumber.getText().toString();
-                if (value.length() != 0) {
-                    performOperation(value, oper);
+                try{
+                    Double doubleValue = Double.valueOf(value);
+                    performOperation(doubleValue, oper);
                 }
+                catch (NumberFormatException e){
+                    newNumber.setText("");
+                };
                 pendingOperation = oper;
                 displayOperation.setText(pendingOperation);
             }
@@ -103,12 +107,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
     @SuppressLint("SetTextI18n")
-    private void performOperation(String value, String operation){
+    private void performOperation(Double value, String operation){
         if(operand1 ==null){
-            operand1 = Double.valueOf(value);
+            operand1 = value;
         }
         else{
-            operand2 = Double.valueOf(value);
+            operand2 = value;
             if (pendingOperation.equals("=")) {
 
                 pendingOperation = operation;
