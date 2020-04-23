@@ -86,7 +86,9 @@ public class MainActivity extends AppCompatActivity {
                 Button b = (Button) v;
                 String oper = b.getText().toString();
                 String value = newNumber.getText().toString();
-                performOperation(value, oper);
+                if (value.length() != 0) {
+                    performOperation(value, oper);
+                }
                 pendingOperation = oper;
                 displayOperation.setText(pendingOperation);
             }
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case"/":
                     if(operand2==0){
-                        operand1 = 0.0;
+                        operand1 =0.0;
                     }
                     else{
                         operand1 /= operand2;
